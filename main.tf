@@ -107,6 +107,7 @@ locals {
   jp_osa_ip_address = [for vm in linode_instance.linode : vm.ipv4 if vm.region == "jp-osa"]
   osaka_ip_address = flatten([for vm in linode_instance.linode : vm.ipv4 if vm.region == "jp-osa"])
   all_ip_addresses = flatten([for vm in linode_instance.linode : "${vm.ipv4}"])
+  region_ip_pairs = { for instance in linode_instance.linode : instance.region => instance.ip_address }
   }
 output "all_ip_addresses" {
   value = local.all_ip_addresses
@@ -194,4 +195,61 @@ resource "null_resource" "connector" {
     ]
   }
   depends_on = [linode_instance.linode, null_resource.create-invs]
+}
+resource "null_resource" "create_gtm_tf" {
+  triggers = {
+    instance_ids = join(",", linode_instance.linode.*.id)
+  }
+//  provisioner "local-exec" {
+//    command = <<EOT
+//#!/bin/bash
+//output_file="${var.userid}.tf"
+//static_file="static.txt"
+//# Create the base of the .tf file from static.txt 
+//cp "$static_file" "$output_file"
+//sed -i "s/{userid}/${var.userid}/g" "$output_file"
+//# Append dynamic region IP blocks
+//for region in ${!local.region_ip_pairs[@]}; do
+//    ip_address=${local.region_ip_pairs[$region]}
+//    cat >> "$output_file" <<EOF
+//  traffic_target {
+//  datacenter_id = akamai_gtm_datacenter.$region.datacenter_id
+//  enabled       = true
+//  weight        = 0
+//  servers       = ["$ip_address"]
+//  }
+//EOF
+//done
+//# Append the final closing brace to the file 
+//echo "}" >> "$output_file"  
+//EOT
+//  } 
+//}
+//resource "null_resource" "create_gtm_tf" {
+  provisioner "local-exec" {
+    command = <<EOT
+#!/bin/bash  
+output_file="${var.userid}.tf"
+static_file="static.txt"
+# Create the base of the .tf file from static.txt
+cp "$static_file" "$output_file"
+sed -i "s/{userid}/${var.userid}/g" "$output_file"
+# Append dynamic region IP blocks
+region_ip_pairs="${join(" ", [for region, ip in local.region_ip_pairs : "${region}=${ip}"])}"
+for pair in $region_ip_pairs; do
+    region=$(echo "$pair" | cut -d= -f1)
+    ip_address=$(echo "$pair" | cut -d= -f2)
+    cat >> "$output_file" <<EOF
+  traffic_target {
+  datacenter_id = akamai_gtm_datacenter.$region.datacenter_id
+  enabled       = true
+  weight        = 0
+  servers       = ["$ip_address"]
+  }
+EOF
+done  
+# Append the final closing brace to the file 
+echo "}" >> "$output_file"
+EOT
+  }
 }
