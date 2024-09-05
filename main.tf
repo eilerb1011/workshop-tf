@@ -153,7 +153,7 @@ resource "null_resource" "copy_files" {
     destination = "/etc/privkey.pem"
   }
   provisioner "file" {
-    source = "new_nats.conf"
+    source = "${path.module}/nats.conf"
     destination = "/root/nats.conf"
   }
   provisioner "remote-exec" {
@@ -171,9 +171,6 @@ resource "null_resource" "copy_files" {
       "echo 'echo \"Starting NATS server...\"' >> /root/start-nats.sh",
       "chmod +x /root/start-nats.sh",
       "./start-nats.sh",
-//      "docker volume create app-vol",
-//      "docker run -d --restart always --add-host host.docker.internal:172.17.0.1 --name edge-trader -m 512m -v app-vol:/data -v /tmp/db:/db -v /etc:/certs -p 443:443 brianapley/edge-trader",
-//      "docker run -d --restart always --name node-http -m 512m -v /tmp/db:/tmp/db -v /etc:/etc -p 8443:8443 brianapley/node-http",
       "rm -rf /root/start-docker.sh",
       "echo '#!/bin/bash' > /root/start-docker.sh",
       "echo 'if [ ! $(docker volume ls -q -f name=app-vol) ]; then' >> /root/start-docker.sh",
