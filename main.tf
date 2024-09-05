@@ -69,7 +69,7 @@ resource "linode_instance" "linode" {
   stackscript_id = 1458080
 }
 resource "linode_firewall" "nats_firewall" {
-  label = "nats_workshop_firewall"
+  label = "${var.userid}-nats_workshop_firewall"
 
   inbound {
     label    = "allow-https"
@@ -129,6 +129,7 @@ resource "null_resource" "create-invs" {
     command = <<EOT
       terraform output ip_address | sed -n 's/^.*"\([0-9.]*\)".*$/\1/p' > ansible.inv
       terraform output jp_osa_ip_address | sed -n 's/^.*"\([0-9.]*\)".*$/\1/p' > osaka.inv
+      chmod +x ${path.module}/nats_config.sh
       ./nats_config.sh
     EOT
   }
