@@ -7,6 +7,7 @@ If you cannot use the web browser, you can use SSH or your own Jumphost.
 #Requirements
 The jumphost environment is based on Ubuntu 24.04
   --can work with other distros but may require tweaking of the local_exec functions
+You will also need certificates that can only be obtained via contacting Brian Apley, or by using the jump hosts provided during the workshops.
   
 #Packages Required
 The jump host has the following packages installed
@@ -65,6 +66,21 @@ curl -H "Authorization: Bearer $TF_VAR_linode_token" -H 'X-Filter: { "site_type"
 
 Instances
 curl https://api.linode.com/v4/linode/types | jq .data[].id
+
+General Instructions
+login
+export TF_VAR_linode_token
+terraform init
+terraform apply -target linode_instance.linode -auto-approve
+terraform apply-auto-approve
+terraform output all_ip_addresses
+ssh in root@
+docker container ls
+ps -ef | grep nats
+cat /root/nats.conf
+
+This will also produce a .tf file which is the GTM config. This will get loaded by the proctors
+rm the .tf file BEFORE trying to destroy terraform
 
 
 
