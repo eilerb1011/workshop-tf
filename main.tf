@@ -75,7 +75,6 @@ resource "linode_firewall" "nats_firewall" {
     ports    = "443, 8888, 8443"
     ipv4     = local.cleaned_cidrs
     ipv6     = local.cleaned_ipv6_cidrs
-    //ipv6     = ["::/0"]
   }
   inbound {
     label    = "allow-nats-nodes"
@@ -149,9 +148,6 @@ resource "null_resource" "copy_files" {
   }
   provisioner "remote-exec" {
     inline = [
-      "CITY=$(curl https://ipinfo.io/city)",
-      "sudo hostnamectl set-hostname $CITY",
-      "echo \"$CITY\" | sudo tee /etc/hostname",
       "rm -rf /root/start-nats.sh",
       "echo '#!/bin/bash' > /root/start-nats.sh",
       "echo 'pid=$(ps -ef | grep nats-server | grep -v grep | awk \"{print \\$2}\")' >> /root/start-nats.sh",
@@ -200,32 +196,6 @@ resource "null_resource" "create_gtm_tf" {
   triggers = {
     instance_ids = join(",", linode_instance.linode.*.id)
   }
-//  provisioner "local-exec" {
-//    command = <<EOT
-//#!/bin/bash
-//output_file="${var.userid}.tf"
-//static_file="static.txt"
-//# Create the base of the .tf file from static.txt 
-//cp "$static_file" "$output_file"
-//sed -i "s/{userid}/${var.userid}/g" "$output_file"
-//# Append dynamic region IP blocks
-//for region in ${!local.region_ip_pairs[@]}; do
-//    ip_address=${local.region_ip_pairs[$region]}
-//    cat >> "$output_file" <<EOF
-//  traffic_target {
-//  datacenter_id = akamai_gtm_datacenter.$region.datacenter_id
-//  enabled       = true
-//  weight        = 0
-//  servers       = ["$ip_address"]
-//  }
-//EOF
-//done
-//# Append the final closing brace to the file 
-//echo "}" >> "$output_file"  
-//EOT
-//  } 
-//}
-//resource "null_resource" "create_gtm_tf" {
   provisioner "local-exec" {
     command = <<EOT
 #!/bin/bash  
