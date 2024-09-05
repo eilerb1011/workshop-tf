@@ -97,18 +97,11 @@ resource "linode_firewall" "nats_firewall" {
 
   linodes = [for i in linode_instance.linode : i.id]
 }
-//output "linode_labels" {
-//  value = [for linode in linode_instance.linode : linode.label]                                                                                                                        
-//}
                                                                                                                                                                                        
 output "ip_address" {
   value = [for vm in linode_instance.linode : "${vm.ipv4}"]                                                                                                                            
 }
                                                                                                                                                                                        
-//output "jp_osa_ip_address" {
-//  value = [for vm in linode_instance.linode : vm.ipv4 if vm.region == "jp-osa"]                                                                                                        
-//  description = "The IP address of the compute instance in the jp-osa region."                                                                                                         
-//}
 locals {
   ip_address = [for vm in linode_instance.linode : "${vm.ipv4}"]
   jp_osa_ip_address = [for vm in linode_instance.linode : vm.ipv4 if vm.region == "jp-osa"]
