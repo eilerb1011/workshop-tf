@@ -33,12 +33,18 @@ variable "regions" {
   description = "List of regions to create Linodes in"                                                                                                                                 
   type        = list(string)                                                                                                                                                           
 }                                                                                                                                                                                      
-                                                                                                                                                                                       
+locals {
+   raw_cidrs = file("${path.module}/ipv4.txt")
+   cleaned_cidrs = [for cidr in split(",", local.raw_cidrs) : trimspace(replace(cidr, "\"", ""))
+  ]
+   raw_ipv6_cidrs = file("${path.module}/ipv6.txt")
+   cleaned_ipv6_cidrs = [for cidr in split(",", local.raw_ipv6_cidrs) : trimspace(replace(cidr, "\"", ""))
+  ]
+}
 locals {                                                                                                                                                                               
   # Generate current Unix epoch time for timestamp                                                                                                                                     
   timestamp = formatdate("s", timestamp())                                                                                                                                             
 }                                                                                                                                                                                      
-                                                                                                                                                                                       
 data "local_file" "ssh_key" {                                                                                                                                                          
   filename = "/home/${var.userid}/.ssh/id_rsa.pub"                                                                                                                                     
 }                                                                                                                                                                                      
@@ -66,8 +72,8 @@ resource "linode_firewall" "nats_firewall" {
     action   = "ACCEPT"                                                                                                                                                                
     protocol = "TCP"                                                                                                                                                                   
     ports    = "443, 8888, 8443"                                                                                                                                                       
-    ipv4     = ["50.0.0.0/8"]                                                                                                                                                          
-    ipv6     = ["::/0"]                                                                                                                                                                
+    ipv4     = local.cleaned_cidrs
+    ipv6     = local.cleaned_ipv6_cidrs
   }                                                                                                                                                                                    
   inbound {                                                                                                                                                                            
     label    = "allow-nats-nodes"                                                                                                                                                      
