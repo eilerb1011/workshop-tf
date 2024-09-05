@@ -127,8 +127,6 @@ resource "null_resource" "create-invs" {
   }
   provisioner "local-exec" {
     command = <<EOT
-      terraform output ip_address | sed -n 's/^.*"\([0-9.]*\)".*$/\1/p' > ansible.inv
-      terraform output jp_osa_ip_address | sed -n 's/^.*"\([0-9.]*\)".*$/\1/p' > osaka.inv
       chmod +x ${path.module}/nats_config.sh
       ./nats_config.sh
     EOT
