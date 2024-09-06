@@ -80,6 +80,8 @@ SSH Keys and the Git environment are also set up for you upon login. You will be
    - Click the blue button at the bottom for ***Create Token*** </br>
      ***Note: If the button is greyed out, make sure you have selected an access level for all items.***
      ***SAVE THIS TOKEN SOMEWHERE SECURE - YOU CANNOT VIEW THIS AGAIN***
+   - Click the blue button to acknowledge you have saved your PAT. </br>
+   - Click back to the ***Linodes*** menu for later use.
 - The Akamai lab environment includes the web front-end to this backend system. If you are supplying your own web-front end, you will need to incorporate the HTML files and create the path and query string routing for the Akamai Ion property.
 
 ## Repo Instructions
@@ -158,19 +160,63 @@ As before, when you are done, hit *`Esc`* on the keyboard. Then *`:`*, followed 
   - In this case, the script will set a hostname on the system equal to its City, install docker and get and install NATS
 
 ### Step 6 - Review Firewalls
+Re-enter the main.tf file using `vi main.tf`
+Arrow down to the resource block that looks like this:
+```
+resource "linode_firewall" "nats_firewall" {
+  label = "${var.userid}-nats_workshop_firewall"
 
+  inbound {
+    label    = "allow-https"
+    action   = "ACCEPT"
+    protocol = "TCP"
+    ports    = "443, 8888, 8443"
+    ipv4     = local.cleaned_cidrs
+    ipv6     = local.cleaned_ipv6_cidrs
+    //ipv6     = ["::/0"]
+  }
+  inbound {
+    label    = "allow-nats-nodes"
+    action   = "ACCEPT"
+    protocol = "TCP"
+    ports    = "6222"
+    ipv4     = [for ip in linode_instance.linode : "${tolist(ip.ipv4)[0]}/32"]
+  }
+  inbound {
+    label    = "allow-ssh"
+    action   = "ACCEPT"
+    protocol = "TCP"
+    ports    = "22"
+    ipv4     = ["${var.me}/32"]
+    ipv6     = ["${var.me6}/128"]
+  }
+  inbound_policy = "DROP"
+  outbound_policy = "ACCEPT"
+
+  linodes = [for i in linode_instance.linode : i.id]
+}
+```
 ### Step 7 - Build Time
-
+Thes rest of the build is a breeze and consists of only a few commands:
+```
 terraform init
 terraform apply -target linode_instance.linode -auto-approve
-terraform apply-auto-approve
+terraform apply -auto-approve
 terraform output all_ip_addresses
+```
+### Step 8 - Backend Testing and Validation
+
 ssh in root@
 docker container ls
 ps -ef | grep nats
 cat /root/nats.conf
 
-This will also produce a .tf file which is the GTM config. This will get loaded by the proctors
+### Step 9 - Akamaize It!
+This will also produce a .tf file which is the GTM config. This will get loaded by the proctors </br>
+The lab bastions have an Object Storage bucket mounted to /GTM where all the GTM Terraform files are output for integration by the Akamai admin. </br>
+
+However, if you are building this in your own Akamai property, this is where you will get the Terraform configuration file for GTM
+
 rm the .tf file BEFORE trying to destroy terraform
 
 
