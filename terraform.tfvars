@@ -1,1 +1,1 @@
-regions       = ["us-southeast", "fr-par", "in-maa", "jp-osa"]
+regions       = ["us-west", "fr-par", "ca-central", "jp-osa"]
