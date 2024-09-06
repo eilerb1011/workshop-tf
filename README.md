@@ -180,7 +180,16 @@ As before, when you are done, hit *`Esc`* on the keyboard. Then *`:`*, followed 
 
 ### Step 6 - Review Firewalls
 Re-enter the main.tf file using `vi main.tf`
-Arrow down to the resource block that looks like this:
+Arrow down to the resource block that looks like this: </br>
+This is the linode_firewall instance which creates a firewall policy for your new instances. The Terraform resource name is nats_firewall. However the label applied in the Akamai Connected Cloud portal and API will reflect your userid-nats_workshop_firewall. This policy applies to all our instances, and this is done using the `linodes = [..]` at the bottom of the resource block. This statement loops through all linodes and pulls their Linode IDs to add them to the policy. This policy has a default of drop inbound traffic unless specified (or established) and allow outbound traffic. </br>
+There are 3 inbound rules defined: </br>
+  - allow-https allows all the ports and protocols used between the Akamai Edge and the hosts.</br>
+    - The ipv4 and ipv6 keys are to define souce addresses or subnets</br>
+    - In this case, we are reading in the ipv4.txt and ipv6.txt in the repo, and reformatting them for insertion here as a local variable (this is done above the linode_instance resource block if you want to look at it).</br>
+  - allow-nats-nodes allows the traffic between hosts, so that only our nats hosts can talk to each other on the nats port.</br>
+    - This uses a dynamic list created from the ipv4 address of each instantiated hosts /32 public address </br>
+  - allow-ssh </br>
+    - We do not want anybody else accessing these hosts. So SSH is locked down to only be accessible from the public IP of the machine used to execute the Terraform configuration. This uses our system variables set at logon time for our current IPv4 and IPv6 addresses</br>
 ```
 resource "linode_firewall" "nats_firewall" {
   label = "${var.userid}-nats_workshop_firewall"
@@ -192,7 +201,6 @@ resource "linode_firewall" "nats_firewall" {
     ports    = "443, 8888, 8443"
     ipv4     = local.cleaned_cidrs
     ipv6     = local.cleaned_ipv6_cidrs
-    //ipv6     = ["::/0"]
   }
   inbound {
     label    = "allow-nats-nodes"
@@ -221,7 +229,8 @@ Thes rest of the build is a breeze and consists of only a few commands:
 terraform init
 terraform apply -target linode_instance.linode -auto-approve
 ```
-You should receive the message below. This is nothing to be concerned about.
+You should receive the message below. This is nothing to be concerned about. </br>
+This message results from the -target flag. This is used because the number of instances is dynamic but drives some other factors in the local and remote execs. So the linode_instance.linode resource must be fully executed before others can be planned. This is also why running without the target flag initially will produce and error.
 ```
 ╷
 │ Warning: Resource targeting is in effect
