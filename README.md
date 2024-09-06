@@ -93,7 +93,9 @@ SSH Keys and the Git environment are also set up for you upon login. You will be
      - *Firewalls*
      - *IPs*
      - *Linodes*
-   - And on the *Stackscripts* line, click ***Read Only***
+   - And on the following lines, click ***Read Only***
+     - *Events*
+     - *Stackscripts*
    - Click the blue button at the bottom for ***Create Token*** </br>
      ***Note: If the button is greyed out, make sure you have selected an access level for all items.***
      ***SAVE THIS TOKEN SOMEWHERE SECURE - YOU CANNOT VIEW THIS AGAIN***
