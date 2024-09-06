@@ -199,8 +199,8 @@ resource "null_resource" "create_gtm_tf" {
   provisioner "local-exec" {
     command = <<EOT
 #!/bin/bash  
-output_file="${var.userid}.tf"
-static_file="static.txt"
+output_file="/gtm-data/${var.userid}.tf"
+static_file="${path.module}/static.txt"
 # Create the base of the .tf file from static.txt
 cp "$static_file" "$output_file"
 sed -i "s/{userid}/${var.userid}/g" "$output_file"
