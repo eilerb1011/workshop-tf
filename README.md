@@ -4,25 +4,25 @@ For this workshop, you will login to the URL at your station, using the username
 
 If you cannot use the web browser, you can use SSH or your own bastion that meets the below requirements.
 
-# In this repo: 
---you have found README :) Keep reading
---main.tf - this is where the magic happens. This files does the following:
-  --terraform.tfvars
-    This is the most important file outside of main.tf. It defines the regions where you will have cluster nodes. All other things depend on this.
-    
-  --ipv4.txt
-  --ipv6.txt
-    ipv4 and ipv6.txt are semi-static files. you can update them with values from https://techdocs.akamai.com/origin-ip-acl/docs/update-your-origin-server. These are just lists of Akamai edge IPs. They will be used to lock down the source addresses for https in the Cloud Firewalls
-  --nats_config.sh
-    nats_config.sh will be called locally by Terraform. Terraform will pass some IP addresses to nats_config to create the nats.conf that Terraform will then place on each node. This allows NATS to know who its neighbors are and communicate with.
-  --static.txt
-    static.txt is the static parts of the Akamai GTM Terraform configuration. Terraform will use a local exec to create a GTM Terraform file using TF outputs of region and ip address. This will get loaded to Akamai to distribute traffic among the nodes.
+## Repo Contents 
+- you have found README :) Keep reading
+- main.tf
+  - This is where the magic happens. This files does the following:
+- terraform.tfvars
+  - This is the most important file outside of main.tf. It defines the regions where you will have cluster nodes. All other things depend on this.
+- ipv4.txt & ipv6.txt
+  - ipv4 and ipv6.txt are semi-static files. You can update them with values from https://techdocs.akamai.com/origin-ip-acl/docs/update-your-origin-server. These are just lists of Akamai edge IPs. They will be used to lock down the source addresses for https in the Cloud Firewalls
+- nats_config.sh
+  - nats_config.sh will be called locally by Terraform. Terraform will pass some IP addresses to nats_config to create the nats.conf that Terraform will then place on each node. This allows NATS to know who its neighbors are and communicate with them.
+- static.txt
+  - static.txt is the static part of the Akamai GTM Terraform configuration. Terraform will use a local exec to create a GTM Terraform file using TF outputs of region and ip address for each node deployed. This will get loaded to Akamai to distribute traffic among the nodes using an Akamai GTM property.
 
 ## Bastion Requirements
-The jumphost environment is based on Ubuntu 24.04
-This can work with other distros, but may require tweaking of the local_exec functions in Terraform.
-You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager
-The bastion has the following packages installed: Curl, Git, JQ and Terraform
+The jumphost environment is based on Ubuntu 24.04 </br>
+This can work with other distros, but may require tweaking of the local_exec functions in Terraform. </br>
+You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
+The bastion has the following packages installed: Curl, Git, JQ and Terraform </br>
+
 ```
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -40,7 +40,7 @@ export TF_VAR_me6=$(curl -6 ifconfig.me)
 ### Repo and SSH Key automated setup
 
 SSH Keys and the Git environment are also set up for you upon login. You will be placed in the local copy of the repo each time you log in.
-Scipts from /etc/profile
+**Scripts from /etc/profile**
 ```
   if [ ! -f "$HOME/.ssh/id_rsa.pub" ]; then
 	  mkdir -p "$HOME/.ssh"
@@ -60,7 +60,31 @@ Scipts from /etc/profile
   fi
   cd $HOME/edgenativeworkshop
 ```
+### Additional Requirements
+You will need an Akamai Connected Cloud account and a Personal Access Token </br>
+If you do not have a Personal Access Token, follow these instructions:
+ - Navigate to https://cloud.linode.com
+ - Log in to the portal using your Linode account - **OR** - If you have Akamai Connected Cloud in your Akamai contract, you can log in using your Akamai Control Center Account
+ - One logged in, Click your user ID in the upper right.
+   - Select API Tokens
+ - Click the blue button for ***Create A Personal Access Token***
+   - Give your token a label - maybe *Workshop*
+   - In the *Expiry* dropdown, select ***In 1 month***
+   - In the *Select All* line, Click the ***No Access*** selection
+   - Then on the following lines, click the ***Read/Write*** selection
+     - *Firewalls*
+     - *IPs*
+     - *Linodes*
+   - And on the *Stackscripts* line, click ***Read Only***
+   - Click the blue button at the bottom for ***Create Token*** </br>
+     ***Note: If the button is greyed out, make sure you have selected an access level for all items.***
+## Repo Instructions
+
 ## Additional Requirements
+**Step 1**
+  - If you do not already have a Linode Personal Access Token to be used in this exercise.
+  - Log in to the bastion using the credentials at your seat:
+  - 
 Additionally you will need to set a variable for your Linode Personal Access Token. This variable must be exposed and follow the TF_VAR_linode_token= convention. 
 
 export TF_VAR_linode_token=tokeninformationhere
