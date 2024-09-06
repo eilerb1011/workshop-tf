@@ -3,7 +3,6 @@ This workshop is meant to be enjoyed in person with your Akamai team. The shell 
 For this workshop, you will login to the URL at your station, using the username and password also provided.
 
 If you cannot use the web browser, you can use SSH or your own bastion that meets the below requirements.
-
 ## Repo Contents 
 - you have found README :) Keep reading
 - main.tf
@@ -23,7 +22,6 @@ If you cannot use the web browser, you can use SSH or your own bastion that meet
 - You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. </br>
   - Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
 - The bastion has the following packages installed: Curl, Git, JQ and Terraform </br>
-
 ```
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -31,7 +29,26 @@ sudo apt install -qq -y gnupg software-properties-common curl git jq terraform
 ```
 ## Shell Setup 
 The shell is preconfigured for you in the bastion environment. Certain environmental variables will be used throughout the Workshop, several are set at login via /etc/profile. All variables starting with TF_VAR are exposed to Terraform as variables that can be used in your scripts (sans TF_VAR), userid will be used to differentiate your files and instances for the workshop. me and me6 are your current IP Addresses to create firewalls for SSH within TF.
+### Using The Shell
+Navigate to the URL provided over HTTPS and you should get a login: prompt </br>
+Once logged in you can right click for a menu, which includes a few noteworthy items: </br>
+- Copy</br>
+  - Copy copies items within the terminal to be used within the terminal</br>
+- Paste</br>
+  - Paste is used for items copied within the terminal</br>
+- Paste from browser </br>
+  - Paste from browser opens a dialogue box so you can paste in commands from other browser tabs, windows or elsewhere on your local system. </br>
+  - For best results, paste 1 line per Paste from browser request</br>
+- Black on White</br>
+  - This will set your view of the terminal to a very bright and gaudy white screen with black text</br>
+- White on Black</br>
+  - Selecting this, will give you a classic terminal visual appeal</br>
+- Monochrome </br>
+  - Monochrome can be selected with either Black on white or White on black and will ensure just black and white shades. </br>
+- Color Terminal </br>
+  - Color Terminal can be selected with either Black on white or White on black and will give you linux color coded text. </br>
 
+Outside of the menu, you can select text from within the terminal window and use your standard keyboard shortcut for Copy to add items to your local clipboard. </br>
 ### Variables automatically set in /etc/profile
 ```
 export TF_VAR_userid=$(whoami)
