@@ -83,38 +83,84 @@ SSH Keys and the Git environment are also set up for you upon login. You will be
 - The Akamai lab environment includes the web front-end to this backend system. If you are supplying your own web-front end, you will need to incorporate the HTML files and create the path and query string routing for the Akamai Ion property.
 
 ## Repo Instructions
-### Step 1 
+### Step 1 - Validate Prerequisites
 If you do not already have a Linode Personal Access Token to be used in this exercise, create one now using the instructions above.
 
-### Step 2
+### Step 2 - Log In
 Log in to the bastion using the URL and credentials at your seat.
 
-### Step 3
-Set a variable for your Linode Personal Access Token. This variable must be exposed and follow the TF_VAR_linode_token= convention. 
+### Step 3 - Per Participant Environment Set Up
+Set a variable for your Linode Personal Access Token. This variable must be exported and follow the `TF_VAR_linode_token=` format. </br>
+Terraform can access any environmental variable so long as it is exported and uses the `TF_VAR_` prefix </br>
+Terraform will use these variables to build your instances and create your firewalls. </br>
+`export TF_VAR_linode_token=tokeninformationhere` </br>
+***Note: You MUST export the variable for it to be used with the terraform process!*** </br>
+An alternate method is to place this in the `terraform.tfvars` file - but that would be really insecure. </br>
+### Step 4 - Review and Select Regions
+You should already be in the repo directory - but just make sure with `pwd` </br>
+This should echo back /home/ followed by your login ID /edgenativeworkshop </br>
+It should look like this:
+`brent@localhost:/home/brent/edgenativeworkshop# pwd` </br>
+`/home/brent/edgenativeworkshop` </br>
 </br>
-Terraform will use this variable to build your instances and create your firewalls.
-
-`export TF_VAR_linode_token=tokeninformationhere`
-
-An alternate method is to place this in the terraform.tfvars file - but that would be really insecure.
-### Step 4
-- You should already be in the repo directory - but just make sure with `pwd` </br>
-- This should echo back /home/ followed by your login ID /edgenativeworkshop </br>
-- Now before starting the build process, decide on the regions to be used </br>
+Now before starting the build process, decide on the regions to be used </br>
 **You can get a current list of Akamai Connected Cloud regions by issuing the below curl command from the shell** </br>
-`curl -H "Authorization: Bearer $TF_VAR_linode_token" -H 'X-Filter: { "site_type" : "core" }' https://api.linode.com/v4/regions | jq .data[].id` </br>
-- Any of the resulting site IDs can be used to build your cluster. The default sites we </br>
+```
+curl -H "Authorization: Bearer $TF_VAR_linode_token" -H 'X-Filter: { "site_type" : "core" }' https://api.linode.com/v4/regions | jq .data[].id
+```
+Any of the resulting site IDs can be used to build your cluster. </br> 
+To edit the regions issue the following command: </br>
 `vi terraform.tfvars`
 This will show you a list of strings, by default the following sites are used: San Francisco, Paris, Toronto and Osaka </br>
 `regions       = ["us-west", "fr-par", "ca-central", "jp-osa"]` </br>
+If you are good with the defaults, simply hit *`:`* and then *`q`* and then *`Enter`* on your keyboard to quit the file without saving </br>
 ***It is important to keep Osaka and the closest region to you in this list. If you want to add more, add more. If you want to reduce this to 2, reduce it to Osaka and the closest region to you. </br>
+If you are not good with the defaults and want to edit this file, use the common vim commands: *`i`* puts you into insert mode. Then your keyboard will function like normal to edit the text (delete, type, etc...) </br>
+When you are done editing, hit *`Esc`* on your keyboard, then *`:`* then *`x`* and finally *`Enter`* to save and exit</br>
+***Note: that is a lower case x - case is important!*** </br>
+### Step 5 - Review and Select Instances
+You may also want to change your instance sizing. Current instances types can be pulled from the API with the following command: </br>
+`curl https://api.linode.com/v4/linode/types | jq .data[].id` </br>
+The default we will use in this exercise are the `g6-standard-2` These are shared instances with 1 vCPU and 2 GB of RAM. </br>
+These should suffice for demonstration purposes, but are not suited for most production workloads. </br>
+If you decide you want larger instances you can edit the `main.tf` file: </br>
+`vi main.tf` </br>
+In this file, you will find a block that looks like this: </br>
+```
+resource "linode_instance" "linode" {
+  count       = length(var.regions)
+  label       = "${var.userid}-${element(var.regions, count.index)}-${local.timestamp}"
+  region      = element(var.regions, count.index)
+  type        = "g6-standard-2"
+  image       = "linode/ubuntu24.04"
+  tags        = toset([var.userid])
+  authorized_keys = [local.sanitized_ssh_key]
+  stackscript_id = 1458080
+}
+```
+Like before, using your editor, click *`i`* on your keyboard to enter insert mode, then arrow down to the `type` field and modify the `g6-standard-2` to fit your need </br>
+As before, when you are done, hit *`Esc`* on the keyboard. Then *`:`*, followed by *`x`* and finally *`Enter`* - which will save the file and exit. </br>
+**Some other key notations in this resource block are:** </br>
+- The dynamically created `count` field.
+  - The `length(var.regions)` statement creates a count of the number of regions listed in the `terraform.tfvars` file.
+- The `label`
+  - This creates a unique label on each instance using the imported system variable of TF_VAR_userid, which is set from whoami at logon, the region and a timestamp
+- The `region` field
+  - This dynamically sets a region using our regions variable in `terraform.tfvars`
+- The `image` field sets which Linode Operating System image to use in this configuration
+- The `tags` field
+  - This too uses the TF_VAR_userid variable to apply a tag for logical grouping of the resources administratively
+- The `authorized_keys` field
+  - This field uses the data resource created above using the autocreated SSH keys that are populated at logon.
+  - This will allow you to SSH to each node and validate functionality later
+- The `stackscript_id` field
+  - This field allows you to add an additional config script to each instance upon instatiation.
+  - In this case, the script will set a hostname on the system equal to its City, install docker and get and install NATS
 
-Instances
-curl https://api.linode.com/v4/linode/types | jq .data[].id
+### Step 6 - Review Firewalls
 
-General Instructions
-login
-export TF_VAR_linode_token
+### Step 7 - Build Time
+
 terraform init
 terraform apply -target linode_instance.linode -auto-approve
 terraform apply-auto-approve
