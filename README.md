@@ -2,7 +2,18 @@
 This workshop is meant to be enjoyed in person with your Akamai team. The shell environment is provided and has all the tooling you will need to complete the workshop along with some other automation.
 For this workshop, you will login to the URL at your station, using the username and password also provided.
 
-If you cannot use the web browser, you can use SSH or your own bastion that meets the below requirements.
+## Workshop Scenario
+You are a Financial Services company based in Tokyo and have a trading platform for securities on the Tokyo exhange. You are hosting your backend in Dynamo and have recently started getting requests for several large clients in the USA and Europe. After reviewing your architecture, you realize the performance will not be conducive to serving users abroad from the AWS Japan region. It will also be far too expensive to expand your Dynamo back-end to use Global Tables and additional DAX and regional API Gateways. So you have set out to create an alternate architecture that will leverage your existing investments and still provide high performance globally while keeping costs under control.  </br>
+
+In the exercise, you will build an edge-native, distributed application that runs an Options Trading platform described here - https://github.com/ccie7599/edge-trader. </br>
+</br>
+The exercise demonstrates a use case of running both stateless/stateful services and applications, across distributed ephemeral nodes, with the source-of-truth for the game similarly distributed across each node. </br>
+By embracing edge-native concepts, this exercise features the following benefits: </br>
+- Performance - since application and NATS.io nodes can be deployed anywhere, we are using Akamai Connected Cloud as our infrastructure, with single-digit millisecond latency to the CDN front-door of the application. </br>
+- Scale - game nodes can be horizontially scaled, and will automatically converge around node changes and node adds/deletes. </br>
+- Reliability - each node has a 99.9% base uptime SLA, and the game can withstand multiple node failures while still maintaining uptime. </br>
+- Security - all user-facing services are accessed through Akamai's security layer, and ohter security features protect the infrastructure. </br>
+
 ## Repo Contents 
 - you have found README :) Keep reading
 - main.tf
@@ -17,6 +28,7 @@ If you cannot use the web browser, you can use SSH or your own bastion that meet
   - static.txt is the static part of the Akamai GTM Terraform configuration. Terraform will use a local exec to create a GTM Terraform file using TF outputs of region and ip address for each node deployed. This will get loaded to Akamai to distribute traffic among the nodes using an Akamai GTM property.
 
 ## Bastion Requirements
+- If you cannot use the web browser, you can use SSH or your own bastion that meets the below requirements. </br>
 - The jumphost environment is based on Ubuntu 24.04 </br>
   - This can work with other distros, but may require tweaking of the local_exec functions in Terraform. </br>
 - You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. </br>
