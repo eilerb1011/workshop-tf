@@ -18,10 +18,11 @@ If you cannot use the web browser, you can use SSH or your own bastion that meet
   - static.txt is the static part of the Akamai GTM Terraform configuration. Terraform will use a local exec to create a GTM Terraform file using TF outputs of region and ip address for each node deployed. This will get loaded to Akamai to distribute traffic among the nodes using an Akamai GTM property.
 
 ## Bastion Requirements
-The jumphost environment is based on Ubuntu 24.04 </br>
-This can work with other distros, but may require tweaking of the local_exec functions in Terraform. </br>
-You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
-The bastion has the following packages installed: Curl, Git, JQ and Terraform </br>
+- The jumphost environment is based on Ubuntu 24.04 </br>
+  - This can work with other distros, but may require tweaking of the local_exec functions in Terraform. </br>
+- You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. </br>
+  - Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
+- The bastion has the following packages installed: Curl, Git, JQ and Terraform </br>
 
 ```
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -61,8 +62,8 @@ SSH Keys and the Git environment are also set up for you upon login. You will be
   cd $HOME/edgenativeworkshop
 ```
 ### Additional Requirements
-You will need an Akamai Connected Cloud account and a Personal Access Token </br>
-If you do not have a Personal Access Token, follow these instructions:
+- You will need an Akamai Connected Cloud account and a Personal Access Token </br>
+- If you do not have a Personal Access Token, follow these instructions:
  - Navigate to https://cloud.linode.com
  - Log in to the portal using your Linode account - **OR** - If you have Akamai Connected Cloud in your Akamai contract, you can log in using your Akamai Control Center Account
  - One logged in, Click your user ID in the upper right.
@@ -78,22 +79,35 @@ If you do not have a Personal Access Token, follow these instructions:
    - And on the *Stackscripts* line, click ***Read Only***
    - Click the blue button at the bottom for ***Create Token*** </br>
      ***Note: If the button is greyed out, make sure you have selected an access level for all items.***
+     ***SAVE THIS TOKEN SOMEWHERE SECURE - YOU CANNOT VIEW THIS AGAIN***
+- The Akamai lab environment includes the web front-end to this backend system. If you are supplying your own web-front end, you will need to incorporate the HTML files and create the path and query string routing for the Akamai Ion property.
+
 ## Repo Instructions
+### Step 1 
+If you do not already have a Linode Personal Access Token to be used in this exercise, create one now using the instructions above.
 
-## Additional Requirements
-**Step 1**
-  - If you do not already have a Linode Personal Access Token to be used in this exercise.
-  - Log in to the bastion using the credentials at your seat:
-  - 
-Additionally you will need to set a variable for your Linode Personal Access Token. This variable must be exposed and follow the TF_VAR_linode_token= convention. 
+### Step 2
+Log in to the bastion using the URL and credentials at your seat.
 
-export TF_VAR_linode_token=tokeninformationhere
+### Step 3
+Set a variable for your Linode Personal Access Token. This variable must be exposed and follow the TF_VAR_linode_token= convention. 
+</br>
+Terraform will use this variable to build your instances and create your firewalls.
+
+`export TF_VAR_linode_token=tokeninformationhere`
 
 An alternate method is to place this in the terraform.tfvars file - but that would be really insecure.
-
-    
-#Regions
-curl -H "Authorization: Bearer $TF_VAR_linode_token" -H 'X-Filter: { "site_type" : "core" }' https://api.linode.com/v4/regions | jq .data[].id
+### Step 4
+- You should already be in the repo directory - but just make sure with `pwd` </br>
+- This should echo back /home/ followed by your login ID /edgenativeworkshop </br>
+- Now before starting the build process, decide on the regions to be used </br>
+**You can get a current list of Akamai Connected Cloud regions by issuing the below curl command from the shell** </br>
+`curl -H "Authorization: Bearer $TF_VAR_linode_token" -H 'X-Filter: { "site_type" : "core" }' https://api.linode.com/v4/regions | jq .data[].id` </br>
+- Any of the resulting site IDs can be used to build your cluster. The default sites we </br>
+`vi terraform.tfvars`
+This will show you a list of strings, by default the following sites are used: San Francisco, Paris, Toronto and Osaka </br>
+`regions       = ["us-west", "fr-par", "ca-central", "jp-osa"]` </br>
+***It is important to keep Osaka and the closest region to you in this list. If you want to add more, add more. If you want to reduce this to 2, reduce it to Osaka and the closest region to you. </br>
 
 Instances
 curl https://api.linode.com/v4/linode/types | jq .data[].id
