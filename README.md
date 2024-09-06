@@ -179,16 +179,16 @@ As before, when you are done, hit *`Esc`* on the keyboard. Then *`:`*, followed 
   - In this case, the script will set a hostname on the system equal to its City, install docker and get and install NATS
 
 ### Step 6 - Review Firewalls
-Re-enter the main.tf file using `vi main.tf`
+Re-enter the `main.tf` file using `vi main.tf`
 Arrow down to the resource block that looks like this: </br>
 This is the linode_firewall instance which creates a firewall policy for your new instances. The Terraform resource name is nats_firewall. However the label applied in the Akamai Connected Cloud portal and API will reflect your userid-nats_workshop_firewall. This policy applies to all our instances, and this is done using the `linodes = [..]` at the bottom of the resource block. This statement loops through all linodes and pulls their Linode IDs to add them to the policy. This policy has a default of drop inbound traffic unless specified (or established) and allow outbound traffic. </br>
 There are 3 inbound rules defined: </br>
-  - allow-https allows all the ports and protocols used between the Akamai Edge and the hosts.</br>
-    - The ipv4 and ipv6 keys are to define souce addresses or subnets</br>
-    - In this case, we are reading in the ipv4.txt and ipv6.txt in the repo, and reformatting them for insertion here as a local variable (this is done above the linode_instance resource block if you want to look at it).</br>
-  - allow-nats-nodes allows the traffic between hosts, so that only our nats hosts can talk to each other on the nats port.</br>
+  - `allow-https` allows all the ports and protocols used between the Akamai Edge and the hosts.</br>
+    - The `ipv4` and `ipv6` keys are to define souce addresses or subnets</br>
+    - In this case, we are reading in the `ipv4.txt` and `ipv6.txt` in the repo, and reformatting them for insertion here as a local variable (this is done above the `linode_instance` resource block if you want to look at it).</br>
+  - `allow-nats-nodes` allows the traffic between hosts, so that only our nats hosts can talk to each other on the nats port.</br>
     - This uses a dynamic list created from the ipv4 address of each instantiated hosts /32 public address </br>
-  - allow-ssh </br>
+  - `allow-ssh` </br>
     - We do not want anybody else accessing these hosts. So SSH is locked down to only be accessible from the public IP of the machine used to execute the Terraform configuration. This uses our system variables set at logon time for our current IPv4 and IPv6 addresses</br>
 ```
 resource "linode_firewall" "nats_firewall" {
@@ -225,12 +225,12 @@ resource "linode_firewall" "nats_firewall" {
 ```
 ### Step 7 - Build Time
 Thes rest of the build is a breeze and consists of only a few commands:
-```
-terraform init
-terraform apply -target linode_instance.linode -auto-approve
-```
-You should receive the message below. This is nothing to be concerned about. </br>
-This message results from the -target flag. This is used because the number of instances is dynamic but drives some other factors in the local and remote execs. So the linode_instance.linode resource must be fully executed before others can be planned. This is also why running without the target flag initially will produce and error.
+`terraform init` </br>
+And </br>
+`terraform apply -target linode_instance.linode -auto-approve` </br>
+
+You should receive the message below when issuing the apply command. This is nothing to be concerned about. </br>
+This message results from the -target flag. This is used because the number of instances is dynamic but drives some other factors in the local and remote execs. So the linode_instance.linode resource must be fully executed before others can be planned. This is also why running without the target flag initially will produce an error.
 ```
 ╷
 │ Warning: Resource targeting is in effect
@@ -251,13 +251,26 @@ This message results from the -target flag. This is used because the number of i
 │ to use it as part of an error message.
 ╵
 ```
-Then you can finish the installation by issuing the following command:
-`terraform apply -auto-approve`
+Then you can finish the installation by issuing the following command: </br>
+`terraform apply -auto-approve` </br>
+If you issue the command too quickly, you may receive some failures due to docker not being fully ready to go from the initial stackscript load. This can be resolved by simply waiting a minute before running the `terraform apply` command. Or just running the command a second time.
 
-
-terraform output all_ip_addresses
-
+Once successful, you should see Apply Complete along with some outputs:
+```
+Apply complete! Resources: 2 added, 4 changed, 2 destroyed.                                                                                                                                           
+                                                                                                                                                                                                      
+Outputs:                                                                                                                                                                                              
+                                                                                                                                                                                                      
+all_ip_addresses = [ 
+]
+```
 ### Step 8 - Backend Testing and Validation
+In this next step, you can use the Terraform Outputs that should be on your screen to validate the following in each system: </br>
+  - There is a valid `nats.conf` on the system with routes to other nodes.</br>
+  - The nats process is running with an appropriate hostname and config.</br>
+  - The application Docker containers are running </br>
+  - In Osaka only, you can validate the read in of the external stream and post to the NATS cluster </br>
+If you have inadvertantly cleared your screen, you can get the IP Addresses of your instances with `terraform output all_ip_addresses` </br>
 
 ssh in root@
 docker container ls
