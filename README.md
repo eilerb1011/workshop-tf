@@ -265,7 +265,7 @@ all_ip_addresses = [
 ]
 ```
 ### Step 8 - Backend Testing and Validation
-In this next step, you can use the Terraform Outputs that should be on your screen to validate the following in each system: </br>
+In this next step, you can use the Terraform Outputs (that should be on your screen) to validate the following in each node: </br>
   - There is a valid `nats.conf` on the system with routes to other nodes.</br>
   - The nats process is running with an appropriate hostname and config.</br>
   - The application Docker containers are running </br>
