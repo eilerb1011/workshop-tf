@@ -217,6 +217,7 @@ The lab bastions have an Object Storage bucket mounted to /GTM where all the GTM
 
 However, if you are building this in your own Akamai property, this is where you will get the Terraform configuration file for GTM
 
+### Step 10 - Play the Game!
 rm the .tf file BEFORE trying to destroy terraform
 
 
