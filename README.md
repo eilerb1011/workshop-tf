@@ -267,7 +267,7 @@ Then you can finish the installation by issuing the following command: </br>
 `terraform apply -auto-approve` </br>
 If you issue the command too quickly, you may receive some failures due to docker not being fully ready to go from the initial stackscript load. This can be resolved by simply waiting a minute before running the `terraform apply` command. Or just running the command a second time.
 
-Once successful, you should see Apply Complete along with some outputs:
+Once successful, you should see an Apply complete message along with some outputs:
 ```
 Apply complete! Resources: 2 added, 4 changed, 2 destroyed.                                                                                                                                           
                                                                                                                                                                                                       
@@ -283,11 +283,52 @@ In this next step, you can use the Terraform Outputs (that should be on your scr
   - The application Docker containers are running </br>
   - In Osaka only, you can validate the read in of the external stream and post to the NATS cluster </br>
 If you have inadvertantly cleared your screen, you can get the IP Addresses of your instances with `terraform output all_ip_addresses` </br>
-
-ssh in root@
-docker container ls
-ps -ef | grep nats
-cat /root/nats.conf
+From you shell, ssh into each node as root. Each node already has your SSH keys on it from the Terraform build. </br>
+`ssh root@1.2.3.4` where you replace `1.2.3.4` with on of the IP addresses output from Terraform. </br>
+Next issue: `cat /root/nats.conf` </br>
+This should return a config file with a routes sectoin at the bottom containing the IP addresses from the Terraform output. </br>
+```
+# Routes to other cluster nodes                                                                                                                                                                       
+routes = [                                                                                                                                                                                            
+"nats://45.33.110.50:6222"                                                                                                                                                                            
+"nats://172.232.55.213:6222"                                                                                                                                                                          
+"nats://172.105.15.165:6222"                                                                                                                                                                          
+"nats://172.233.66.139:6222"                                                                                                                                                                          
+]
+```
+Next, validate NATS is running and has a hostname defined mathcing the node hostname.</br>
+```ps -ef | grep nats``` </br>
+This should return a running process that looks like this: </br>
+```root        5980       1  0 21:29 pts/0    00:00:00 nats-server -c /root/nats.conf --cluster_name nats_global --name Osaka```</br>
+Then validate you have 2 -3 containers running, depending on the region. In Osaka, you will have 3. Everywhere else, you should have 2. </br>
+```docker container ls``` </br>
+The output should look similar to this: </br>
+```
+CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS                    PORTS                                             NAMES                                   
+01ba535f3b7f   brianapley/redis-nats    "docker-entrypoint.s…"   53 minutes ago   Up 53 minutes                                                               connector                               
+4182ad8b3739   brianapley/node-http     "docker-entrypoint.s…"   54 minutes ago   Up 54 minutes             0.0.0.0:8443->8443/tcp, :::8443->8443/tcp         node-http                               
+7987b840f052   brianapley/edge-trader   "./entrypoint.sh"        54 minutes ago   Up 54 minutes (healthy)   0.0.0.0:443->443/tcp, :::443->443/tcp, 1880/tcp   edge-trader
+```
+Last, since this is the output from the Osaka node, view the logs from the `redis-nats` container with `docker container logs connector` </br>
+This should produce an output like this: </br>
+```
+Received message: {                                                                                                                                                                                   
+  id: '1725658723785-0',                                                                                                                                                                              
+  message: [Object: null prototype] { price: '209.99' }                                                                                                                                               
+}                                                                                                                                                                                                     
+Published message to NATS on subject "redisprice2"                                                                                                                                                    
+Received message: {                                                                                                                                                                                   
+  id: '1725658724787-0',                                                                                                                                                                              
+  message: [Object: null prototype] { price: '211.26' }                                                                                                                                               
+}                                                                                                                                                                                                     
+Published message to NATS on subject "redisprice2"                                                                                                                                                    
+Received message: {                                                                                                                                                                                   
+  id: '1725658725789-0',                                                                                                                                                                              
+  message: [Object: null prototype] { price: '209.25' }                                                                                                                                               
+}                                                                                                                                                                                                     
+Published message to NATS on subject "redisprice2"
+```
+And this shows that the system is taking in messages from the external stream and publishing them to the global NATS cluster. </br>
 
 ### Step 9 - Akamaize It!
 This will also produce a .tf file which is the GTM config. This will get loaded by the proctors </br>
