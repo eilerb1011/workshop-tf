@@ -75,7 +75,7 @@ resource "linode_instance" "linode" {
       "sudo chmod 700 /home/${var.userid}/.ssh",
       "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys",
       "sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
-      "echo "PermitRootLogin no" >> /etc/ssh/sshd_config",
+      "echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
       "sudo systemctl restart sshd",
     ] 
     connection {
