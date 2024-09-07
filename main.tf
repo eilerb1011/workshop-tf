@@ -67,6 +67,8 @@ resource "linode_instance" "linode" {
   provisioner "remote_exec" {
     inline = [
       "sudo adduser --diabled-password --gecos ''${var.userid}",
+      "sudo usermod -aG sudo ${var.userid},
+      "sudo ${var.userid}:adminpass | chpasswd",
       "sudo mkdir -p /home${var.userid}/.ssh",
       "sudo cp /root/.ssh/authorized_keys /home/${var.userid}/.ssh/",
       "sudo chown -R ${var.userid}:${var.userid} /home/${var.userid}",
