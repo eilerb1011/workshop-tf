@@ -287,7 +287,7 @@ If you have inadvertantly cleared your screen, you can get the IP Addresses of y
 From you shell, ssh into each node. Each node already has your SSH keys on it from the Terraform build. </br>
 `ssh @1.2.3.4` where you replace `1.2.3.4` with on of the IP addresses output from Terraform. </br>
 Next issue: `sudo cat /root/nats.conf` </br>
-You sudo password is your `username-adminpass` </br>
+You sudo password is your username with `-adminpass` appended. So an example would be, for user1, the sudo password will be `user1-adminpass`</br>
 This should return a config file with a routes sectoin at the bottom containing the IP addresses from the Terraform output. </br>
 ```
 # Routes to other cluster nodes                                                                                                                                                                       
