@@ -241,9 +241,9 @@ resource "null_resource" "finish-up" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
-      "sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
-      "sudo systemctl restart ssh", 
+      "echo adminpass | sudo -S sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
+      "echo adminpass | sudo -S sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
+      "echo adminpass | sudo -S sudo systemctl restart ssh", 
     ]
   }
   depends_on = [null_resource.copy_files]
