@@ -148,7 +148,7 @@ resource "null_resource" "copy_files" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo adduser --gecos "" --disabled-password ${var.userid}",
+      "sudo adduser --gecos '' --disabled-password ${var.userid}",
       "sudo usermod -aG sudo ${var.userid}",
       "sudo ${var.userid}:adminpass | chpasswd",
       "sudo mkdir -p /home/${var.userid}/.ssh",
