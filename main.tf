@@ -246,5 +246,5 @@ resource "null_resource" "finish-up" {
       "sudo systemctl restart ssh", 
     ]
   }
-  depends_on = [null_resource.copy-files]
+  depends_on = [null_resource.copy_files]
 }
