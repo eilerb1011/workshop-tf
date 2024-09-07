@@ -244,7 +244,7 @@ resource "null_resource" "connector" {
       "docker run -d --restart always --add-host host.docker.internal:172.17.0.1 --name connector -m 1024m brianapley/redis-nats",
     ]
   }
-  depends_on = [linode_instance.linode, null_resource.create-invs]
+  depends_on = [linode_instance.linode, null_resource.copy_files]
 }
 resource "null_resource" "create_gtm_tf" {
   triggers = {
