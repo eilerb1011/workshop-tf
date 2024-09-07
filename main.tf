@@ -186,6 +186,8 @@ resource "null_resource" "copy_files" {
       "echo 'fi' >> /root/start-docker.sh",
       "chmod +x /root/start-docker.sh",
       "./start-docker.sh",
+      "echo ${var.sudo} | sudo -S sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
+      "echo ${var.sudo} | sudo -S sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
     ]
   }
   depends_on = [linode_instance.linode, null_resource.create-invs, linode_firewall.nats_firewall]
@@ -245,8 +247,6 @@ resource "null_resource" "finish-up" {
   }
   provisioner "remote-exec" {
     inline = [
-      "echo ${var.sudo} | sudo -S sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
-      "echo ${var.sudo} | sudo -S sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
       "echo ${var.sudo} | sudo -S sudo systemctl restart ssh", 
     ]
   }
