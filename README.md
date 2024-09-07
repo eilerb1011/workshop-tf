@@ -66,6 +66,7 @@ Outside of the menu, you can select text from within the terminal window and use
 export TF_VAR_userid=$(whoami)
 export TF_VAR_me=$(curl -4 ifconfig.me)
 export TF_VAR_me6=$(curl -6 ifconfig.me)
+export TF_VAR_sudo=$(whoami)-adminpass
 ```
 ### Repo and SSH Key automated setup
 
