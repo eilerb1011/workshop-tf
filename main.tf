@@ -236,7 +236,7 @@ resource "null_resource" "finish-up" {
   connection {
     type = "ssh"
     host = local.all_ip_addresses[count.index]
-    user = {var.userid}
+    user = var.userid
     private_key = file("/home/${var.userid}/.ssh/id_rsa")
   }
   provisioner "remote-exec" {
