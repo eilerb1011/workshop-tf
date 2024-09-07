@@ -158,7 +158,7 @@ resource "null_resource" "copy_files" {
       "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys",
       "sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
       "echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
-      "sudo systemctl restart sshd",      
+      "sudo systemctl restart ssh",      
       "rm -rf /root/start-nats.sh",
       "echo '#!/bin/bash' > /root/start-nats.sh",
       "echo 'pid=$(ps -ef | grep nats-server | grep -v grep | awk \"{print \\$2}\")' >> /root/start-nats.sh",
