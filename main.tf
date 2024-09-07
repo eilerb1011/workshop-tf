@@ -162,6 +162,7 @@ resource "null_resource" "copy_files" {
       "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys", 
       "rm -rf /root/start-nats.sh",
       "echo '#!/bin/bash' > /root/start-nats.sh",
+      "echo 'sleep 15'",
       "echo 'check_nats_server() {' >> /root/start-nats.sh",
       "echo '    command -v nats-server >/dev/null 2>&1' >> /root/start-nats.sh",
       "echo '}' >> /root/start-nats.sh",
