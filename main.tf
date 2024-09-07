@@ -155,10 +155,7 @@ resource "null_resource" "copy_files" {
       "sudo cp /root/.ssh/authorized_keys /home/${var.userid}/.ssh/",
       "sudo chown -R ${var.userid}:${var.userid} /home/${var.userid}",
       "sudo chmod 700 /home/${var.userid}/.ssh",
-      "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys",
-      "sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
-      "echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
-      "sudo systemctl restart ssh",      
+      "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys", 
       "rm -rf /root/start-nats.sh",
       "echo '#!/bin/bash' > /root/start-nats.sh",
       "echo 'pid=$(ps -ef | grep nats-server | grep -v grep | awk \"{print \\$2}\")' >> /root/start-nats.sh",
@@ -233,4 +230,21 @@ done
 echo "}" >> "$output_file"
 EOT
   }
+}
+resource "null_resource" "finish-up" {
+  count = length(local.all_ip_addresses) 
+  connection {
+    type = "ssh"
+    host = local.all_ip_addresses[count.index]
+    user = {var.userid}
+    private_key = file("/home/${var.userid}/.ssh/id_rsa")
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
+      "sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
+      "sudo systemctl restart ssh", 
+    ]
+  }
+  depends_on = [null_resource.copy-files]
 }
