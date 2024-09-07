@@ -20,6 +20,10 @@ variable "userid" {
   description = "User ID or identifier to be used in labels and tags"
   type        = string
 }
+variable "sudo" {
+  description = "sudo pass of instance"
+  type        = string
+}
 variable "me6" {
   description = "IPv6 Address of current jumphost"
   type        = string
@@ -150,7 +154,7 @@ resource "null_resource" "copy_files" {
     inline = [
       "sudo adduser --gecos '' --disabled-password ${var.userid}",
       "sudo usermod -aG sudo ${var.userid}",
-      "sudo echo ${var.userid}:adminpass | chpasswd",
+      "sudo echo ${var.userid}:${var.sudo} | chpasswd",
       "sudo mkdir -p /home/${var.userid}/.ssh",
       "sudo cp /root/.ssh/authorized_keys /home/${var.userid}/.ssh/",
       "sudo chown -R ${var.userid}:${var.userid} /home/${var.userid}",
@@ -241,9 +245,9 @@ resource "null_resource" "finish-up" {
   }
   provisioner "remote-exec" {
     inline = [
-      "echo adminpass | sudo -S sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
-      "echo adminpass | sudo -S sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
-      "echo adminpass | sudo -S sudo systemctl restart ssh", 
+      "echo ${var.sudo} | sudo -S sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
+      "echo ${var.sudo} | sudo -S sudo echo 'PermitRootLogin no' >> /etc/ssh/sshd_config",
+      "echo ${var.sudo} | sudo -S sudo systemctl restart ssh", 
     ]
   }
   depends_on = [null_resource.copy_files]
