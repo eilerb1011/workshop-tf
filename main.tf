@@ -64,6 +64,25 @@ resource "linode_instance" "linode" {
   tags        = toset([var.userid])
   authorized_keys = [local.sanitized_ssh_key]
   stackscript_id = 1458080
+  provisioner "remote_exec" {
+    inline = [
+      "sudo adduser --diabled-password --gecos ''${var.userid}",
+      "sudo mkdir -p /home${var.userid}/.ssh",
+      "sudo cp /root/.ssh/authorized_keys /home/${var.userid}/.ssh/",
+      "sudo chown -R ${var.userid}:${var.userid} /home/${var.userid}",
+      "sudo chmod 700 /home/${var.userid}/.ssh",
+      "sudo chmod 600 /home/${var.userid}/.ssh/authorized_keys",
+      "sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config",
+      "echo "PermitRootLogin no" >> /etc/ssh/sshd_config",
+      "sudo systemctl restart sshd",
+    ] 
+    connection {
+      type = "ssh"
+      user = "root"
+      private_key = file("/home/${var.userid}/.ssh/id_rsa")
+      host = self.ipv4  
+    }
+  }
 }
 resource "linode_firewall" "nats_firewall" {
   label = "${var.userid}-nats_workshop_firewall"
