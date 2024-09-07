@@ -169,7 +169,7 @@ resource "null_resource" "copy_files" {
       "echo 'max_attempts=10' >> /root/start-nats.sh",
       "echo 'wait_time=30' >> /root/start-nats.sh",
       "echo 'while ! check_nats_server; do' >> /root/start-nats.sh",
-      "echo '    if [ $attempts" -ge $max_attempts" ]; then' >> /root/start-nats.sh",
+      "echo '    if [ $attempts -ge $max_attempts ]; then' >> /root/start-nats.sh",
       "echo '        echo \"nats-server is not installed after $max_attempts attempts. Exiting.\"' >> /root/start-nats.sh",
       "echo '        exit 1' >> /root/start-nats.sh",
       "echo '    fi' >> /root/start-nats.sh",
