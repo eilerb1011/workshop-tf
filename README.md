@@ -284,9 +284,10 @@ In this next step, you can use the Terraform Outputs (that should be on your scr
   - The application Docker containers are running </br>
   - In Osaka only, you can validate the read in of the external stream and post to the NATS cluster </br>
 If you have inadvertantly cleared your screen, you can get the IP Addresses of your instances with `terraform output all_ip_addresses` </br>
-From you shell, ssh into each node as root. Each node already has your SSH keys on it from the Terraform build. </br>
-`ssh root@1.2.3.4` where you replace `1.2.3.4` with on of the IP addresses output from Terraform. </br>
-Next issue: `cat /root/nats.conf` </br>
+From you shell, ssh into each node. Each node already has your SSH keys on it from the Terraform build. </br>
+`ssh @1.2.3.4` where you replace `1.2.3.4` with on of the IP addresses output from Terraform. </br>
+Next issue: `sudo cat /root/nats.conf` </br>
+You sudo password is your `username-adminpass` </br>
 This should return a config file with a routes sectoin at the bottom containing the IP addresses from the Terraform output. </br>
 ```
 # Routes to other cluster nodes                                                                                                                                                                       
@@ -298,11 +299,11 @@ routes = [
 ]
 ```
 Next, validate NATS is running and has a hostname defined mathcing the node hostname.</br>
-```ps -ef | grep nats``` </br>
+`sudo ps -ef | grep nats` </br>
 This should return a running process that looks like this: </br>
 ```root        5980       1  0 21:29 pts/0    00:00:00 nats-server -c /root/nats.conf --cluster_name nats_global --name Osaka```</br>
 Then validate you have 2 -3 containers running, depending on the region. In Osaka, you will have 3. Everywhere else, you should have 2. </br>
-```docker container ls``` </br>
+`sudo docker container ls` </br>
 The output should look similar to this: </br>
 ```
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS                    PORTS                                             NAMES                                   
@@ -310,7 +311,7 @@ CONTAINER ID   IMAGE                    COMMAND                  CREATED        
 4182ad8b3739   brianapley/node-http     "docker-entrypoint.s…"   54 minutes ago   Up 54 minutes             0.0.0.0:8443->8443/tcp, :::8443->8443/tcp         node-http                               
 7987b840f052   brianapley/edge-trader   "./entrypoint.sh"        54 minutes ago   Up 54 minutes (healthy)   0.0.0.0:443->443/tcp, :::443->443/tcp, 1880/tcp   edge-trader
 ```
-Last, since this is the output from the Osaka node, view the logs from the `redis-nats` container with `docker container logs connector` </br>
+Last, since this is the output from the Osaka node, view the logs from the `redis-nats` container with `sudo docker container logs connector` </br>
 This should produce an output like this: </br>
 ```
 Received message: {                                                                                                                                                                                   
