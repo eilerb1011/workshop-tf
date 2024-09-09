@@ -70,7 +70,7 @@ resource "linode_instance" "linode" {
   stackscript_id = 1458080
 }
 resource "linode_firewall" "nats_firewall" {
-  label = "${var.userid}-nats_workshop_firewall"
+  label = "${var.userid}-workshopfw"
 
   inbound {
     label    = "allow-https"
