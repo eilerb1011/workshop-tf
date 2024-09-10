@@ -9,6 +9,7 @@ For this workshop, you will login to the URL at your station, using the username
 - `terraform apply -target linode_instance.linode -auto-approve`
 - `terraform apply -auto-approve`
 - Play the game @ *https://workshop.connected-cloud.io/scoreboard/testscore.html?origin=edgenative*
+  - You can swap out `edgenative` in the query string for the userid you used to log in to the bastion
 - `terraform destroy -auto-approve`
   
 ## Workshop Scenario
