@@ -3,7 +3,7 @@ This workshop is meant to be enjoyed in person with your Akamai team. The shell 
 For this workshop, you will login to the URL at your station, using the username and password that will also be provided. In this workshop you will build a full environment of Akamai caching, Global Traffic Management, Edge functions, Cloud Computing and Object Storage using Terraform to run a Node base application with a backend leveraging NATS to extend an existing data platform to a global audience.
 
 ## TLDR; ##
-- Log in
+- Log in to the bastion
 - `export TF_VAR_linode_token=yourlinodetokenthatyourcreatedwithappropriatepermissions`
 - `terraform init`
 - `terraform apply -target linode_instance.linode -auto-approve`
