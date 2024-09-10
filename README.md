@@ -20,8 +20,10 @@ By embracing edge-native concepts, this exercise features the following benefits
   - This is where the magic happens. This files does the following: </br>
     - Creates the cloud instances
     - Creates the firewalls based upon the Cloud instances built and IP Addresses listed for the instances, your bastion and the files defining the Akamai ranges.
-    - Initiates the NATS configuration based on the output on the Cloud instances
-    - Creates a GTM file based upon the output of the Cloud instances
+    - Copies your SSH keys to each instance as well as a certificate to secure communications to the Akamai network.
+    - Initiates the NATS configuration based on the output on the Cloud instances and copies it to each node.
+    - Starts NATS and all associated Docker containers on each node.
+    - Creates a GTM file based upon the output of the Cloud instances.
 - terraform.tfvars
   - This is the most important file outside of main.tf. It defines the regions where you will have cluster nodes. All other things depend on this.
 - ipv4.txt & ipv6.txt
@@ -87,13 +89,13 @@ SSH Keys and the Git environment are also set up for you upon login. You will be
    	  git init "$HOME" 
   fi
       	# Check if the edgenativeworkshop repo is already cloned 
-  if [ ! -d "$HOME/edgenativeworkshop/.git" ]; then     
-	  echo "Cloning edgenativeworkshop repository..."
-   	  git clone https://github.com/akamai/edgenativeworkshop.git "$HOME/edgenativeworkshop" 
+  if [ ! -d "$HOME/workshop/.git" ]; then     
+	  echo "Cloning workshop repository..."
+   	  git clone https://github.com/eilerb1011/workshop-tf "$HOME/workshop" 
   else     
-	  echo "edgenativeworkshop repository already present." 
+	  echo "workshop repository already present." 
   fi
-  cd $HOME/edgenativeworkshop
+  cd $HOME/workshop
 ```
 ### Additional Requirements
 - You will need an Akamai Connected Cloud account and a Personal Access Token </br>
