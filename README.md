@@ -1,7 +1,9 @@
 # Akamai Edge Native Workshop
 This workshop is meant to be enjoyed in person with your Akamai team. The shell environment is provided and has all the tooling you will need to complete the workshop along with some other automation.
-For this workshop, you will login to the URL at your station, using the username and password that will also be provided. In this workshop you will build a full environment of Akamai caching, Global Traffic Management, Edge functions, Cloud Computing and Object Storage using Terraform to run a Node base application with a backend leveraging NATS to extend an existing data platform to a global audience.
-
+For this workshop, you will login to the URL at your station, using the username and password that will also be provided. In this workshop you will build a full environment of Akamai caching, Global Traffic Management, Edge functions, Cloud Computing and Object Storage using Terraform to run a Node base application with a backend leveraging NATS to extend an existing data platform to a global audience. </br>
+</br>
+![workshop app](https://github.com/user-attachments/assets/cc01d0b0-aa93-4a5f-b8c2-cb9928d0e6b8)
+</br>
 ## TLDR; ##
 - Log in to the bastion
 - `export TF_VAR_linode_token=yourlinodetokenthatyourcreatedwithappropriatepermissions`
