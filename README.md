@@ -10,6 +10,7 @@ For this workshop, you will login to the URL at your station, using the username
 - `terraform apply -auto-approve`
 - Play the game @ *https://workshop.connected-cloud.io/scoreboard/testscore.html?origin=edgenative*
   - You can swap out `edgenative` in the query string for the userid you used to log in to the bastion
+  - It could take 1-2 minutes for the game to be ready in the Global Traffic Manager.
 - `terraform destroy -auto-approve`
   
 ## Workshop Scenario
