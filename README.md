@@ -1,11 +1,11 @@
 # Akamai Edge Native Workshop
 This workshop is meant to be enjoyed in person with your Akamai team. The shell environment is provided and has all the tooling you will need to complete the workshop along with some other automation.
-For this workshop, you will login to the URL at your station, using the username and password also provided.
+For this workshop, you will login to the URL at your station, using the username and password that will also be provided. In this workshop you will build a full environment of Akamai caching, Global Traffic Management, Edge functions, Cloud Computing and Object Storage using Terraform to run a Node base application with a backend leveraging NATS to extend an existing data platform to a global audience.
 
 ## Workshop Scenario
-You are a Financial Services company based in Tokyo and have a trading platform for securities on the Tokyo exhange. You are hosting your backend in Dynamo and have recently started getting requests for several large clients in the USA and Europe. After reviewing your architecture, you realize the performance will not be conducive to serving users abroad from the AWS Japan region. It will also be far too expensive to expand your Dynamo back-end to use Global Tables and additional DAX and regional API Gateways. So you have set out to create an alternate architecture that will leverage your existing investments and still provide high performance globally while keeping costs under control.  </br>
+You are a Financial Services company based in Tokyo and have a trading platform for securities on the Tokyo exhange. You are hosting your backend in Dynamo and have recently started getting requests for several large clients in the USA and Europe. After reviewing your architecture, you realize the performance will not be conducive to serving users abroad from the AWS Japan region. It will also be far too expensive to expand your Dynamo back-end to use Global Tables, additional DAX and regional API Gateways. So you have set out to create an alternate architecture that will leverage your existing investments and still provide high performance globally while keeping costs under control.  </br>
 
-In the exercise, you will build an edge-native, distributed application that runs an Options Trading platform described here - https://github.com/ccie7599/edge-trader. </br>
+In the exercise, you will build the edge-native, distributed application that runs an Options Trading platform described here - *https://github.com/ccie7599/edge-trader*. </br>
 </br>
 The exercise demonstrates a use case of running both stateless/stateful services and applications, across distributed ephemeral nodes, with the source-of-truth for the game similarly distributed across each node. </br>
 By embracing edge-native concepts, this exercise features the following benefits: </br>
@@ -17,7 +17,11 @@ By embracing edge-native concepts, this exercise features the following benefits
 ## Repo Contents 
 - you have found README :) Keep reading
 - main.tf
-  - This is where the magic happens. This files does the following:
+  - This is where the magic happens. This files does the following: </br>
+    - Creates the cloud instances
+    - Creates the firewalls based upon the Cloud instances built and IP Addresses listed for the instances, your bastion and the files defining the Akamai ranges.
+    - Initiates the NATS configuration based on the output on the Cloud instances
+    - Creates a GTM file based upon the output of the Cloud instances
 - terraform.tfvars
   - This is the most important file outside of main.tf. It defines the regions where you will have cluster nodes. All other things depend on this.
 - ipv4.txt & ipv6.txt
@@ -333,13 +337,33 @@ Published message to NATS on subject "redisprice2"
 And this shows that the system is taking in messages from the external stream and publishing them to the global NATS cluster. </br>
 
 ### Step 9 - Akamaize It!
-This will also produce a .tf file which is the GTM config. This will get loaded by the proctors </br>
-The lab bastions have an Object Storage bucket mounted to /GTM where all the GTM Terraform files are output for integration by the Akamai admin. </br>
+**Global Traffic Management**
+A Terraform file is also generated in the previous step of the workshop. It is created with your userid followed by `.tf` and is placed in the `/gtm-data` folder. It will be applied to an Akamai Demo config on your behalf. The file will generate a GTM property under the connectedcloud5.akadns.net domain, with the property name equal to your userid, and a GTM DNS name equal to your userid followed by *.connectedcloud5.akadns.net*. This name will performance load balance each request, mapping users to the most proximate Compute region with no bias for load distribution. </br>
 
-However, if you are building this in your own Akamai property, this is where you will get the Terraform configuration file for GTM
+There are two default regions pre-built-</br>
+*edgenative.connectedcloud5.akadns.net* - uses all four of the workshop regions for distribution - the regions in your `terraform.tfvars` file.
+legacy.connectedcloud5.akadns.net - uses only one region to simulate a legacy, centralized origin. </br>
+
+**Akamai Ion and WAF** </br>
+The workshop Akamaized URL is workshop.connected-cloud.io. For the API, Websocket, and Server-Sent Events components of the application, using the origin={username} query string will instruct Ion to use *{username}.connectedcloud5.akadns.net* as an origin. The HTML components of the application are stored in Object Storage. The can be found in the repo here: *https://github.com/ccie7599/edge-trader*</br>
+
+**Akamai EdgeWorkers** </br>
+The Get Quote service within the application uses Akamai EdgeWorkers to execute server-side javascript that calculates option value based on strike price and current price. The Edgeworker request is in the format of `/quote?currentPrice=X&strikePrice=Y&optionType={call|put}` </br>
+
+For sake of comparision, the same service is running on the application surface at /quoteorigin. This call can be directed to a specific GTM origin as explained above via the `origin={{username}|edgenative|legacy}` query string argument. </br>
+
+**Observability**</br>
+The Ion Property has DataStream2 enabled, and sends complete CDN logs to Hydrolix TrafficPeak. When viewing dashboards in TrafficPeak, of particular interest is changes in Edge Turn-Around Time (measuring origin response latency) as requests switch from using distributed to centralized origins and back.
+
+**Performance Tests**</br>
+There are two pages that can test in realtime the performance delta between deployment types. </br>
+
+API Comparison - *https://workshop.connected-cloud.io/scoreboard/api-compare.html* - this makes an API call to `/get?topic=price`, and uses the origin query string to direct Akamai to use the edge-native origin vs. the centralized origin, and shows the results on a bar graph. </br>
+Function Comparison - *https://workshop.connected-cloud.io/scoreboard/function-compare.html* - This runs the Option Pricing function, and directs the call to the Akamai EdgeWorker, as well as to hosted functions on both the edge-native and centralized origin, and shows the response time difference. </br>
+Performance data can also be generated by running a distributed locust.io test, as scripted in this repository - *https://github.com/ccie7599/locust-edgenative*, and viewing the Edge Turn-Around Time panel in TrafficPeak. As scripted, including the /get (for edge-native) or /getlegacy (for centralized) in the path panel filter in TrafficPeak will contrast the turn-around time when using edge-native vs. centralized origins.
 
 ### Step 10 - Play the Game!
-
+Go to https://workshop.connected-cloud.io/scoreboard.
 
 
 
