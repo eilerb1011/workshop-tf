@@ -21,8 +21,9 @@ By embracing edge-native concepts, this exercise features the following benefits
     - Creates the cloud instances
     - Creates the firewalls based upon the Cloud instances built and IP Addresses listed for the instances, your bastion and the files defining the Akamai ranges.
     - Copies your SSH keys to each instance as well as a certificate to secure communications to the Akamai network.
-    - Initiates the NATS configuration based on the output on the Cloud instances and copies it to each node.
+    - Uses a local exec provisioner to initiates the NATS configuration based on the output on the Cloud instances and copies it to each node.
     - Starts NATS and all associated Docker containers on each node.
+    - Creates your userid in sudo group on each node, and associates it with your SSH key, then disables root SSH login after all configuration has been done using the remote exec provisioner.
     - Creates a GTM file based upon the output of the Cloud instances.
 - terraform.tfvars
   - This is the most important file outside of main.tf. It defines the regions where you will have cluster nodes. All other things depend on this.
