@@ -2,6 +2,15 @@
 This workshop is meant to be enjoyed in person with your Akamai team. The shell environment is provided and has all the tooling you will need to complete the workshop along with some other automation.
 For this workshop, you will login to the URL at your station, using the username and password that will also be provided. In this workshop you will build a full environment of Akamai caching, Global Traffic Management, Edge functions, Cloud Computing and Object Storage using Terraform to run a Node base application with a backend leveraging NATS to extend an existing data platform to a global audience.
 
+## TLDR; ##
+- Log in
+- `export TF_VAR_linode_token=yourlinodetokenthatyourcreatedwithappropriatepermissions`
+- `terraform init`
+- `terraform apply -target linode_instance.linode -auto-approve`
+- `terraform apply -auto-approve`
+- Play the game @ *https://workshop.connected-cloud.io/scoreboard/testscore.html?origin=edgenative*
+- `terraform destroy -auto-approve`
+  
 ## Workshop Scenario
 You are a Financial Services company based in Tokyo and have a trading platform for securities on the Tokyo exhange. You are hosting your backend in Dynamo and have recently started getting requests for several large clients in the USA and Europe. After reviewing your architecture, you realize the performance will not be conducive to serving users abroad from the AWS Japan region. It will also be far too expensive to expand your Dynamo back-end to use Global Tables, additional DAX and regional API Gateways. So you have set out to create an alternate architecture that will leverage your existing investments and still provide high performance globally while keeping costs under control.  </br>
 
