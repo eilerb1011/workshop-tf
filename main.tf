@@ -288,7 +288,8 @@ resource "null_resource" "finish-up" {
   }
   provisioner "remote-exec" {
     inline = [
-      "echo ${var.sudo} | sudo -S sudo systemctl restart ssh", 
+      "echo ${var.sudo} | sudo -S systemctl restart ssh",
+      "echo ${var.sudo} | sudo -S /root/start-nats.sh",
     ]
   }
   depends_on = [null_resource.copy_files]
