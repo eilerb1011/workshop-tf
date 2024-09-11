@@ -54,7 +54,7 @@ By embracing edge-native concepts, this exercise features the following benefits
 - The jumphost environment is based on Ubuntu 24.04 </br>
   - This can work with other distros, but may require tweaking of the local_exec functions in Terraform. </br>
 - You will also need certificates for the front-end that can only be obtained via contacting Brian Apley, or by using the bastion provided during the workshops. </br>
-  - Alternatively you can supply you own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
+  - Alternatively you can supply your own front-end to this and set up an Akamai property to serve the static pages and create the Global Traffic Manager </br>
 - The bastion has the following packages installed: Curl, Git, Glow, JQ and Terraform </br>
 ```
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
